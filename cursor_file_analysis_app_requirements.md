@@ -1,0 +1,95 @@
+# Cursor File Analysis App — Requirements & Documentation
+
+## Purpose
+
+CLI application to analyze AlayaCare Cursor usage export CSVs. It reads line-item usage data, applies filters and normalizations, and produces one or more summary CSVs according to the selected analysis.
+
+## Requirements
+
+### Input
+
+- **Format:** CSV with headers.
+- **Content:** Cursor usage by interaction (one row per event).
+- **Required columns (or aliases):**
+  - **Date** — interaction date/time
+  - **User** — user identifier (e.g. email); may be `N/A` for non-human (e.g. bug bot)
+  - **Service Account Name** — used when User is N/A
+  - **Service Account Kind** — used to exclude `"Errored, No Charge"`
+  - **Numeric columns (after Max Mode):** Input (w/ Cache), Input (w/o Cache), Cache Read, Output Tokens, Total Tokens, Cost
+
+### Processing rules
+
+1. **Filter:** Exclude rows where Service Account Kind = `"Errored, No Charge"`.
+2. **User:** When User is N/A or empty, use **Service Account Name** as the user identifier.
+3. **Time:** Weeks start on **Monday** for weekly analyses.
+4. **Sums:** All analyses sum the 6 numeric columns: input w/ cache, input w/o, cache read, output token, total tokens, cost.
+
+### Output
+
+One CSV per analysis option (or one folder with all CSVs when option `00` is used). Output columns are the period/user identifiers plus the 6 summed columns.
+
+---
+
+## Analysis Options
+
+| Code | Description | Output columns |
+|------|-------------|----------------|
+| **11** | Daily per user | `date`, `user`, then the 6 sum columns |
+| **12** | Weekly per user (week starts Monday) | `week_start_monday`, `user`, then the 6 sum columns |
+| **13** | Monthly per user | `month`, `user`, then the 6 sum columns |
+| **14** | Total per user | `user`, then the 6 sum columns |
+| **21** | Daily total (all users) | `date`, then the 6 sum columns |
+| **22** | Weekly total (week starts Monday) | `week_start_monday`, then the 6 sum columns |
+| **23** | Monthly total | `month`, then the 6 sum columns |
+| **24** | Grand total | One row: the 6 sum columns only |
+| **00** | All of the above | Writes 8 CSVs into a subfolder |
+
+### Output file names (when using option 00)
+
+- `daily_per_user.csv` (11)
+- `weekly_per_user.csv` (12)
+- `monthly_per_user.csv` (13)
+- `total_per_user.csv` (14)
+- `daily_total.csv` (21)
+- `weekly_total.csv` (22)
+- `monthly_total.csv` (23)
+- `total.csv` (24)
+
+---
+
+## Application Documentation
+
+### Tech stack
+
+- **Language:** Python 3
+- **Dependencies:** pandas (see `requirements.txt`)
+- **Interface:** CLI only
+
+### Usage
+
+```bash
+# Show analysis menu
+python analyze.py --menu
+
+# Run one analysis (code as argument or -14, -11, etc.)
+python analyze.py <input.csv> -a 14 -o total_per_user.csv
+python analyze.py <input.csv> -14 -o total_per_user.csv
+
+# Run all analyses into a subfolder
+python analyze.py <input.csv> -a 00 -o ./results
+```
+
+- **`-a CODE`** / **`--analysis CODE`**: `11`, `12`, `13`, `14`, `21`, `22`, `23`, `24`, or `00`.
+- **`-11`, `-12`, … `-24`, `-00`**: Shortcuts for `-a 11`, `-a 12`, etc.
+- **`-o PATH`**: Output file (single analysis) or output directory (for `00`).
+- **`-m`** / **`--menu`**: Print the analysis menu and exit.
+
+If no analysis code is given and the input file is provided, the script prints the menu and prompts for a choice.
+
+### Column name handling
+
+The app matches input headers flexibly (e.g. truncated or alternate names) via a fixed alias list so that exports with slightly different column titles still work.
+
+### Repository
+
+https://github.com/jfgailleur/cursor-usage-analysis

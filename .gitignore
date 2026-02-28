@@ -23,6 +23,9 @@ build/
 .DS_Store
 Thumbs.db
 
-# Local data (optional - remove if you want to track sample CSVs)
+# Local data and outputs (do not push CSVs, Excel, or result folders)
 *.csv
 !sample_input.csv
+*.xlsx
+results_*/
+analysis_sample/
