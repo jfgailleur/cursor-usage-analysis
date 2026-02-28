@@ -1,0 +1,7 @@
+Date,User,Service Account Name,Service Account Kind,Model,Max Mode,Input (w/ Cache),Input (w/o Cache),Cache Read,Output Tokens,Total Tokens,Cost
+2025-02-01 10:00:00,alice@alayacare.com,,Normal,claude-3-5,,100,50,0,200,300,0.05
+2025-02-01 11:00:00,alice@alayacare.com,,Normal,claude-3-5,,80,20,60,150,290,0.04
+2025-02-01 12:00:00,bob@alayacare.com,,Normal,,,200,100,0,400,600,0.10
+2025-02-01 09:00:00,N/A,Bug Bot,"Errored, No Charge",,0,0,0,0,0,0.00
+2025-02-02 08:00:00,bob@alayacare.com,,Normal,,,50,50,0,100,150,0.02
+2025-02-02 10:00:00,N/A,Internal Bot,Normal,,,10,5,5,20,30,0.01
